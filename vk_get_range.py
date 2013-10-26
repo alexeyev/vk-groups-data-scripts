@@ -1,8 +1,7 @@
 from urllib2 import *
 from sys import argv
 from random import shuffle
-import yaml
-import datetime
+import json, io, datetime
 
 # random shuffling
 def mix(array):
@@ -14,48 +13,54 @@ def mix(array):
 	shuffle(wrapped_array)
 	return unwrap(wrapped_array)
 
-# chunking array to chunks with n elements each (i love one-liners)
+# splitting array to chunks with n elements each (i love disgusting one-liners)
 def chunk(array, n):
 	return [array[start: start + n] for start in [n * i for i in range(len(array) / n + 1)] if start <> len(array)]
 
-# nice printing for dict
-def convert(input):
-    if isinstance(input, dict):
-        return {convert(key): convert(value) for key, value in input.iteritems()}
-    elif isinstance(input, list):
-        return [convert(element) for element in input]
-    elif isinstance(input, unicode):
-        return input.encode('utf-8')
-    else:
-        return input
+def build_url(chunk):
+	url_pattern = "http://api.vk.com/method/groups.getById?fields=members_count,description&group_ids="
+	return url_pattern + ",".join([str(index) for index in chunk])
 
-#==================================================================================================
+def build_request(chunk):
+	headers = {'User-agent' : 'Mozilla/5.0 (Windows; U; Windows NT 5.1; de; rv:1.9.1.5)', 'Content-type' : 'text/html; charset=UTF8'}
+	return Request(build_url(chunk), None, headers)
+
+def build_json_dump(js):
+	return unicode(json.dumps(js, ensure_ascii=False))
+
+# --- running stuff ---
 
 start_time = datetime.datetime.now()
 
 # ids chunk size for submitting to API
 chunk_size = 500
 
-# list arg0..arg1
-ids_chunks = chunk(mix(range(int(argv[1]), int(argv[2]) + 1)), chunk_size)
+# ids range
+start = int(argv[1])
+finish = int(argv[2])
+
+# list: numbers of groups for requests
+ids_chunks = chunk(mix(range(start, finish + 1)), chunk_size)
 
 counter = 0
-url_pattern = "http://api.vk.com/method/groups.getById?fields=members_count&group_ids="
+with io.open(argv[3], "w", encoding="utf-8") as storage:
+	for chunk in ids_chunks:	
+		# getting response from API
+		response = urlopen(build_request(chunk)).read()	
 
-storage = open(argv[3], "w+")
+		# parsing json		
+		loaded = json.loads(response)
 
-for chunk in ids_chunks:
-	# todo: change User-Agent header
-	response = urlopen(url_pattern + ",".join([str(index) for index in chunk])).read()
-	loaded = yaml.load(response.replace("\/", "/"))
-	counter += len(loaded['response'])
-	print "Loaded:", counter
-	for record in loaded['response']:
-		print record
-		storage.write(str((record)) + "\n")	
-storage.close()
+		# reporting number of records
+		counter += len(loaded['response'])
+		print "Loaded:", counter
 
+		# flushing to file
+		for record in loaded['response']:
+			storage.write(build_json_dump(record))	
 
 finish_time = datetime.datetime.now()
+
 print "Done in just", (finish_time - start_time)
+print "Loaded", counter,"/", finish - start + 1
 
