@@ -17,12 +17,15 @@ def mix(array):
 def chunk(array, n):
 	return [array[start: start + n] for start in [n * i for i in range(len(array) / n + 1)] if start <> len(array)]
 
+# made constant so as not to create a new object every time
+#url_pattern = "http://api.vk.com/method/groups.getById?fields=members_count,description&group_ids="
+url_pattern = "http://api.vk.com/method/groups.getById?fields=members_count&group_ids="
+headers = {'User-agent' : 'Mozilla/5.0 (Windows; U; Windows NT 5.1; de; rv:1.9.1.5)', 'Content-type' : 'text/html; charset=UTF8'}
+
 def build_url(chunk):
-	url_pattern = "http://api.vk.com/method/groups.getById?fields=members_count,description&group_ids="
 	return url_pattern + ",".join([str(index) for index in chunk])
 
 def build_request(chunk):
-	headers = {'User-agent' : 'Mozilla/5.0 (Windows; U; Windows NT 5.1; de; rv:1.9.1.5)', 'Content-type' : 'text/html; charset=UTF8'}
 	return Request(build_url(chunk), None, headers)
 
 def build_json_dump(js):
