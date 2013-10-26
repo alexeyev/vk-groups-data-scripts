@@ -19,7 +19,7 @@ def chunk(array, n):
 
 # made constant so as not to create a new object every time
 #url_pattern = "http://api.vk.com/method/groups.getById?fields=members_count,description&group_ids="
-url_pattern = "http://api.vk.com/method/groups.getById?fields=members_count&group_ids="
+url_pattern = "http://api.vk.com/method/groups.getById?fields=members_count,country&group_ids="
 headers = {'User-agent' : 'Mozilla/5.0 (Windows; U; Windows NT 5.1; de; rv:1.9.1.5)', 'Content-type' : 'text/html; charset=UTF8'}
 
 def build_url(chunk):
@@ -60,7 +60,7 @@ with io.open(argv[3], "w", encoding="utf-8") as storage:
 
 		# flushing to file
 		for record in loaded['response']:
-			storage.write(build_json_dump(record))	
+			storage.write(build_json_dump(record) + "\n")	
 
 finish_time = datetime.datetime.now()
 
