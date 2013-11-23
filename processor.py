@@ -4,7 +4,7 @@ import json
 
 acc = 0
 
-onlyfiles = [ f for f in listdir("./") if isfile(join("./",f)) and f.endswith(".txt")]
+onlyfiles = [f for f in listdir("./") if isfile(join("./",f)) and f.endswith(".txt")]
 
 bag = {}
 
@@ -22,12 +22,26 @@ with open("hist.csv", "w+") as out:
 				print acc	
 			try:
 				j = json.loads(line.strip())
-				members = j.get('members_count')
-				country = j.get('country')
-				if members != None:
-					put(members,country)
+				if j.get('members_count') == None:
+					members = 0
+				else:
+					members = j.get('members_count')  
+				if j.get('country') == None:
+					country = 0
+				else:
+					country = j.get('country') 
+				# a bit unsafe
+				if j.get('deactivated') == None:
+					put(members, country)
 				#out.write(str(members) + "," + str(country) + "\n")
 			except Exception,e:
 				print "Problems while parsing\n" + line + "\n" + str(e)
+
+	out.write("members_count, country, frequency\n")
 	for m, c in bag:
 		out.write(str(m) + "," + str(c) + "," + str(bag[(m,c)]) + "\n")
+
+
+
+
+
