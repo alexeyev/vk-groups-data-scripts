@@ -1,6 +1,7 @@
 from os import listdir
 from os.path import isfile, join
 import json
+import datetime
 
 acc = 0
 
@@ -14,12 +15,15 @@ def put(mmbr, cntr):
 		bag[(mmbr, cntr)] = 0
 	bag[(mmbr, cntr)] += 1
 
+
+start_time = datetime.datetime.now()
 with open("hist.csv", "w+") as out:
 	for f in onlyfiles:
 		for line in open(f, "r+"):		
 			acc += 1
 			if acc % 50000 == 0:
 				print acc	
+				print "Time passed:", (datetime.datetime.now() - start_time)
 			try:
 				j = json.loads(line.strip())
 				if j.get('members_count') == None:
