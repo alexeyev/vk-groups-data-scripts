@@ -37,7 +37,7 @@ def build_json_dump(js):
 start_time = datetime.datetime.now()
 
 # ids chunk size for submitting to API
-chunk_size = 500
+chunk_size = 300
 
 # big piece size (implemented due to memory issues)
 piece_size = 100 * 1000
