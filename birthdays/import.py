@@ -2,6 +2,13 @@ import sys
 import json
 from urllib2 import *
 
+"""
+Call example:
+$ python
+
+"""
+
+
 my_id = sys.argv[1]
 
 print "Fetching birthdays for id", my_id
@@ -23,5 +30,7 @@ with open(sys.argv[2], "w+") as wfile:
     #print json_data
     #print json_data['response']
     for record in json_data['response']:
-        #print json_to_line(record)
+        print json_to_line(record)
         wfile.write(json_to_line(record).encode('UTF-8'))
+
+# my calendar: qdm2cma6nmsucvvsftopjlru6c@group.calendar.google.com
